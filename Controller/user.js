@@ -1,13 +1,41 @@
 const UserModel = require('../Model/userSchema');
+const validators = require('../Utilities/validator');
+const bcrypt = require('bcrypt');
 
 exports.createUser = async (req, res) => {
+	//validate password
+	if (!validators.validatePassword(req.body.password)) {
+		res.status(400).json({
+			status: 'fail',
+			message: 'password too short.',
+		});
+	}
+
+	//validate email
+	if (!validators.validateEmail(req.body.email)) {
+		res.status(400).json({
+			status: 'fail',
+			message: 'Email is invalid.',
+		});
+	}
+
+	//validate username
+	if (!validators.validateUsername(req.body.username)) {
+		res.status(400).json({
+			status: 'fail',
+			message: 'Username is too short.',
+		});
+	}
+
 	try {
+		const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
 		let newUser = await UserModel.create({
 			username: req.body.username,
 			firstName: req.body.firstName,
 			lastName: req.body.lastName,
 			email: req.body.email,
-			passwordHash: req.body.password,
+			passwordHash: hashedPassword,
 		});
 
 		res.status(201).json({
