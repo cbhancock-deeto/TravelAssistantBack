@@ -4,6 +4,6 @@ userController = require('../Controller/user');
 
 // USER controller
 routing.post('/user', userController.createUser);
-//routing.get('/user', userController.getUsers);
+routing.get('/user', userController.getUser);
 
 module.exports = routing;

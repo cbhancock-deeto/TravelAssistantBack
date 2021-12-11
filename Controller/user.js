@@ -23,3 +23,22 @@ exports.createUser = async (req, res) => {
 		});
 	}
 };
+
+exports.getUser = async (req, res) => {
+	const user = await UserModel.findOne({ username: req.body.username });
+	if (user.length === 0) {
+		res.status(400).send('Cannot find user');
+		return;
+	}
+	try {
+		res.status(200).json({
+			status: 'success',
+			message: `${user.username} successful`,
+		});
+	} catch (err) {
+		res.status(404).json({
+			status: 'fail',
+			message: err,
+		});
+	}
+};
