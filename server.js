@@ -1,4 +1,7 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
+const route = require('./Routes/routing');
+const express = require('express');
+const app = express();
 require('dotenv').config();
 
 async function main() {
@@ -9,27 +12,19 @@ async function main() {
 
 	const db_name = process.env.DB_NAME;
 	const db_pass = process.env.DB_PASS;
-	const uri = `mongodb+srv://${db_name}:${db_pass}@cluster0.chluz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+	const uri = `mongodb+srv://${db_name}:${db_pass}@cluster0.chluz.mongodb.net/travelAssistant?retryWrites=true&w=majority`;
 
-	const client = new MongoClient(uri, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
+	mongoose
+		.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+		.then(() => console.log('DB connection successful'));
+
+	app.use(express.json());
+	app.use('/', route);
+
+	const port = process.env.PORT || 8000;
+	app.listen(port, () => {
+		console.log(`App running on port ${port}...`);
 	});
-
-	try {
-		await client.connect();
-		await listDatabases(client);
-	} catch (e) {
-		console.error(e);
-	} finally {
-		await client.close();
-	}
-}
-
-async function listDatabases(client) {
-	databasesList = await client.db().admin().listDatabases();
-	console.log('Databases');
-	databasesList.databases.forEach((db) => console.log(` - ${db.name}`));
 }
 
 main().catch(console.error);
