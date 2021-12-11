@@ -52,6 +52,7 @@ exports.createUser = async (req, res) => {
 	}
 };
 
+// FOR TESTING PURPOSES ONLY
 exports.getUser = async (req, res) => {
 	const user = await UserModel.findOne({ username: req.body.username });
 	if (user.length === 0) {
@@ -63,6 +64,35 @@ exports.getUser = async (req, res) => {
 			status: 'success',
 			message: `${user.username} successful`,
 		});
+	} catch (err) {
+		res.status(404).json({
+			status: 'fail',
+			message: err,
+		});
+	}
+};
+
+exports.userLogin = async (req, res) => {
+	const user = await UserModel.findOne({ username: req.body.username });
+
+	if (user.length === 0) {
+		res.status(400).send('Cannot find user');
+		return;
+	}
+
+	try {
+		const passCheck = bcrypt.compareSync(req.body.password, user.passwordHash);
+		if (passCheck) {
+			res.status(200).json({
+				status: 'success',
+				message: `${user.username} successful login`,
+			});
+		} else {
+			res.status(404).json({
+				status: 'fail',
+				message: 'Incorrect password',
+			});
+		}
 	} catch (err) {
 		res.status(404).json({
 			status: 'fail',
